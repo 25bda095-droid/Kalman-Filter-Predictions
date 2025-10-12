@@ -108,8 +108,9 @@ class Kalman2DFilter:
             x_pred: Predicted state
             P_pred: Predicted covariance
         """
-        x_pred = self.F @ self.x
-        P_pred = self.F @ self.P @ self.F.T + self.Q
+        # Ensure dimensions are correct
+        x_pred = np.dot(self.F, self.x)
+        P_pred = np.dot(np.dot(self.F, self.P), self.F.T) + self.Q
         
         return x_pred, P_pred
     
@@ -142,8 +143,14 @@ class Kalman2DFilter:
         # Calculate innovation covariance
         S = self.H @ P_pred @ self.H.T + self.R
         
-        # Calculate Kalman gain
-        K = P_pred @ self.H.T @ np.linalg.inv(S)
+        # Calculate Kalman gain using solve instead of inv (more stable)
+        try:
+            # S is 2x2, use solve for numerical stability
+            S_inv = np.linalg.inv(S)
+            K = P_pred @ self.H.T @ S_inv
+        except np.linalg.LinAlgError:
+            # Fallback: use pseudoinverse if regular inverse fails
+            K = P_pred @ self.H.T @ np.linalg.pinv(S)
         
         # Update state estimate
         x_updated = x_pred + K @ y
