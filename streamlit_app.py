@@ -19,9 +19,7 @@ This interactive application demonstrates how a **Kalman Filter** works by track
 The filter intelligently combines noisy measurements with motion predictions to estimate the car's true position.
 """)
 
-# ============================================================================
 # SIDEBAR: Configuration
-# ============================================================================
 st.sidebar.header("⚙️ Configuration")
 
 st.sidebar.subheader("Initial Car State")
@@ -51,55 +49,32 @@ process_noise_vel = st.sidebar.slider(
 )
 
 # Initialize session state
-if 'kf' not in st.session_state:
+if 'kf' not in st.session_state or st.session_state.kf is None:
     st.session_state.kf = Kalman2DFilter(dt=dt)
+if 'simulation_data' not in st.session_state:
     st.session_state.simulation_data = None
+if 'run_simulation' not in st.session_state:
     st.session_state.run_simulation = False
 
-# Run or reset simulation
-col1, col2, col3 = st.sidebar.columns(3)
-if col1.button("▶️ Run Simulation", use_container_width=True):
-    st.session_state.run_simulation = True
-    st.rerun()
-
-if col2.button("🔄 Reset", use_container_width=True):
-    st.session_state.kf = Kalman2DFilter(dt=dt)
-    st.session_state.simulation_data = None
-    st.session_state.run_simulation = False
-    st.success("✅ Reset complete! All data cleared.")
-    st.rerun()
-
-if col3.button("📊 Example Data", use_container_width=True):
-    # Load example with preset values
-    st.session_state.simulation_data = run_kalman_simulation(
-        st.session_state.kf,
-        init_pos_x=0, init_pos_y=0, init_vel_x=10, init_vel_y=3,
-        duration=150, dt=0.1, acceleration_x=0.5, acceleration_y=0.2,
-        measurement_noise=3.0, process_noise_pos=0.05, process_noise_vel=0.01
-    )
-    st.success("✅ Example data loaded! Scroll down to see results.")
-    st.rerun()
-
-# ============================================================================
 # SIMULATION LOGIC
-# ============================================================================
 def run_kalman_simulation(kf, init_pos_x, init_pos_y, init_vel_x, init_vel_y,
                          duration, dt, acceleration_x, acceleration_y, measurement_noise, process_noise_pos, process_noise_vel):
     """
     Run complete Kalman filter simulation.
-    
-    The simulation:
-    1. Generates true car trajectory with constant acceleration
-    2. Adds measurement noise to simulate sensor noise
-    3. Applies Kalman filter to estimate true state from noisy measurements
     """
-    
     # Configure filter
     kf.reset()
+    kf.dt = dt
+    kf.F = np.array([
+        [1, dt, 0,  0],
+        [0,  1, 0,  0],
+        [0,  0, 1, dt],
+        [0,  0, 0,  1]
+    ])
     kf.set_initial_state(init_pos_x, init_pos_y, init_vel_x, init_vel_y)
     kf.set_process_noise(process_noise_pos, process_noise_vel)
     kf.set_measurement_noise(measurement_noise ** 2)
-    
+
     # Storage
     results = {
         'time': [],
@@ -119,20 +94,19 @@ def run_kalman_simulation(kf, init_pos_x, init_pos_y, init_vel_x, init_vel_y,
         'innovation_x': [],
         'innovation_y': []
     }
-    
+
     # True state (not given to filter)
     true_state = np.array([init_pos_x, init_vel_x, init_pos_y, init_vel_y])
-    
+
     for step in range(duration):
         try:
             t = step * dt
-            
             # Update true state with acceleration (kinematic equation)
             true_state[0] += true_state[1] * dt + 0.5 * acceleration_x * dt**2
             true_state[1] += acceleration_x * dt
             true_state[2] += true_state[3] * dt + 0.5 * acceleration_y * dt**2
             true_state[3] += acceleration_y * dt
-            
+
             # Add measurement noise
             measurement_noise_x = np.random.normal(0, measurement_noise)
             measurement_noise_y = np.random.normal(0, measurement_noise)
@@ -140,17 +114,17 @@ def run_kalman_simulation(kf, init_pos_x, init_pos_y, init_vel_x, init_vel_y,
                 true_state[0] + measurement_noise_x,
                 true_state[2] + measurement_noise_y
             ], dtype=np.float64)
-            
+
             # Apply Kalman filter
             step_result = kf.step(measurement)
         except Exception as e:
             st.error(f"Error in step {step}: {str(e)}")
             break
-        
+
         # Extract results
         estimated_state = step_result['x_updated']
         innovation = step_result['innovation']
-        
+
         # Store history
         results['time'].append(t)
         results['true_pos_x'].append(true_state[0])
@@ -168,8 +142,33 @@ def run_kalman_simulation(kf, init_pos_x, init_pos_y, init_vel_x, init_vel_y,
         results['prediction_error_y'].append(true_state[2] - estimated_state[2])
         results['innovation_x'].append(innovation[0])
         results['innovation_y'].append(innovation[1])
-    
+
     return results
+
+# Action buttons
+col1, col2, col3 = st.sidebar.columns(3)
+if col1.button("▶️ Run Simulation", use_container_width=True):
+    st.session_state.kf = Kalman2DFilter(dt=dt)
+    st.session_state.run_simulation = True
+    st.rerun()
+
+if col2.button("🔄 Reset", use_container_width=True):
+    st.session_state.kf = Kalman2DFilter(dt=dt)
+    st.session_state.simulation_data = None
+    st.session_state.run_simulation = False
+    st.success("✅ Reset complete! All data cleared.")
+    st.rerun()
+
+if col3.button("📊 Example Data", use_container_width=True):
+    st.session_state.kf = Kalman2DFilter(dt=0.1)
+    st.session_state.simulation_data = run_kalman_simulation(
+        st.session_state.kf,
+        init_pos_x=0, init_pos_y=0, init_vel_x=10, init_vel_y=3,
+        duration=150, dt=0.1, acceleration_x=0.5, acceleration_y=0.2,
+        measurement_noise=3.0, process_noise_pos=0.05, process_noise_vel=0.01
+    )
+    st.success("✅ Example data loaded! Scroll down to see results.")
+    st.rerun()
 
 # Run simulation if requested
 if st.session_state.run_simulation:
@@ -185,12 +184,10 @@ if st.session_state.run_simulation:
         st.success("✅ Simulation complete!")
         st.rerun()
 
-# ============================================================================
 # DISPLAY RESULTS
-# ============================================================================
 if st.session_state.simulation_data is not None:
     data = st.session_state.simulation_data
-    
+
     # Create tabs for different visualizations
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "📍 2D Trajectory", 
@@ -199,18 +196,16 @@ if st.session_state.simulation_data is not None:
         "🎯 Errors & Innovation",
         "📋 Data Tables"
     ])
-    
-    # ========================================================================
+
     # TAB 1: 2D TRAJECTORY
-    # ========================================================================
     with tab1:
         st.subheader("Car Trajectory in 2D Space")
         st.markdown("Blue=True, Red=Measured, Green=Estimated")
-        
+
         # Check if we have data
         if len(data['true_pos_x']) > 0:
             fig_traj = go.Figure()
-            
+
             # True trajectory
             fig_traj.add_trace(go.Scatter(
                 x=data['true_pos_x'], y=data['true_pos_y'],
@@ -218,7 +213,7 @@ if st.session_state.simulation_data is not None:
                 line=dict(color='blue', width=2),
                 marker=dict(size=4)
             ))
-            
+
             # Measurements
             if len(data['measurement_x']) > 0:
                 fig_traj.add_trace(go.Scatter(
@@ -226,7 +221,7 @@ if st.session_state.simulation_data is not None:
                     mode='markers', name='Measurements (Noisy)',
                     marker=dict(color='red', size=3, opacity=0.6)
                 ))
-            
+
             # Kalman estimate
             if len(data['estimated_pos_x']) > 0:
                 fig_traj.add_trace(go.Scatter(
@@ -235,7 +230,7 @@ if st.session_state.simulation_data is not None:
                     line=dict(color='green', width=2, dash='dash'),
                     marker=dict(size=4)
                 ))
-            
+
             # Start and end points
             if len(data['true_pos_x']) > 0:
                 fig_traj.add_trace(go.Scatter(
@@ -243,7 +238,7 @@ if st.session_state.simulation_data is not None:
                     mode='markers', name='Start',
                     marker=dict(color='green', size=15, symbol='circle')
                 ))
-                
+
                 fig_traj.add_trace(go.Scatter(
                     x=[data['true_pos_x'][-1]], y=[data['true_pos_y'][-1]],
                     mode='markers', name='End (True)',
@@ -252,7 +247,7 @@ if st.session_state.simulation_data is not None:
         else:
             st.warning("No trajectory data available")
             fig_traj = go.Figure()
-        
+
         fig_traj.update_layout(
             title="2D Car Trajectory: Noisy Measurements vs Kalman Filter Estimate",
             xaxis_title="Position X (m)",
@@ -262,20 +257,18 @@ if st.session_state.simulation_data is not None:
             template='plotly_dark'
         )
         st.plotly_chart(fig_traj, use_container_width=True)
-    
-    # ========================================================================
+
     # TAB 2: POSITION TRACKING
-    # ========================================================================
     with tab2:
         st.subheader("Position Over Time")
-        
+
         fig_pos = make_subplots(
             rows=2, cols=1,
             subplot_titles=("Position X", "Position Y"),
             vertical_spacing=0.12,
             specs=[[{"secondary_y": False}], [{"secondary_y": False}]]
         )
-        
+
         # X position
         fig_pos.add_trace(
             go.Scatter(x=data['time'], y=data['true_pos_x'], mode='lines',
@@ -292,7 +285,7 @@ if st.session_state.simulation_data is not None:
                       name='Estimated X', line=dict(color='green', width=2, dash='dash')),
             row=1, col=1
         )
-        
+
         # Y position
         fig_pos.add_trace(
             go.Scatter(x=data['time'], y=data['true_pos_y'], mode='lines',
@@ -309,26 +302,23 @@ if st.session_state.simulation_data is not None:
                       name='Estimated Y', line=dict(color='green', width=2, dash='dash'), showlegend=False),
             row=2, col=1
         )
-        
+
         fig_pos.update_xaxes(title_text="Time (s)", row=2, col=1)
         fig_pos.update_yaxes(title_text="X Position (m)", row=1, col=1)
         fig_pos.update_yaxes(title_text="Y Position (m)", row=2, col=1)
         fig_pos.update_layout(height=600, hovermode='x unified', template='plotly_dark')
-        
+
         st.plotly_chart(fig_pos, use_container_width=True)
-    
-    # ========================================================================
+
     # TAB 3: VELOCITY & UNCERTAINTY
-    # ========================================================================
     with tab3:
         st.subheader("Velocity Estimation & Filter Uncertainty")
-        
         fig_vel = make_subplots(
             rows=3, cols=1,
             subplot_titles=("Velocity X", "Velocity Y", "Position Uncertainty (σ)"),
             vertical_spacing=0.1
         )
-        
+
         # Velocity X
         fig_vel.add_trace(
             go.Scatter(x=data['time'], y=data['true_vel_x'], mode='lines',
@@ -340,7 +330,7 @@ if st.session_state.simulation_data is not None:
                       name='Estimated Vel X', line=dict(color='green', width=2, dash='dash')),
             row=1, col=1
         )
-        
+
         # Velocity Y
         fig_vel.add_trace(
             go.Scatter(x=data['time'], y=data['true_vel_y'], mode='lines',
@@ -352,34 +342,31 @@ if st.session_state.simulation_data is not None:
                       name='Estimated Vel Y', line=dict(color='green', width=2, dash='dash'), showlegend=False),
             row=2, col=1
         )
-        
+
         # Uncertainty
         fig_vel.add_trace(
             go.Scatter(x=data['time'], y=data['uncertainty'], mode='lines',
                       name='Uncertainty', line=dict(color='orange', width=2), fill='tozeroy'),
             row=3, col=1
         )
-        
+
         fig_vel.update_xaxes(title_text="Time (s)", row=3, col=1)
         fig_vel.update_yaxes(title_text="Vel X (m/s)", row=1, col=1)
         fig_vel.update_yaxes(title_text="Vel Y (m/s)", row=2, col=1)
         fig_vel.update_yaxes(title_text="Uncertainty (m)", row=3, col=1)
         fig_vel.update_layout(height=800, hovermode='x unified', template='plotly_dark')
-        
+
         st.plotly_chart(fig_vel, use_container_width=True)
-    
-    # ========================================================================
+
     # TAB 4: ERRORS & INNOVATION
-    # ========================================================================
     with tab4:
         st.subheader("Prediction Errors & Measurement Innovation")
-        
         fig_err = make_subplots(
             rows=2, cols=1,
             subplot_titles=("Position Prediction Error", "Measurement Innovation (Residual)"),
             vertical_spacing=0.12
         )
-        
+
         # Prediction error
         fig_err.add_trace(
             go.Scatter(x=data['time'], y=data['prediction_error_x'], mode='lines',
@@ -391,7 +378,7 @@ if st.session_state.simulation_data is not None:
                       name='Error Y', line=dict(color='orange', width=1)),
             row=1, col=1
         )
-        
+
         # Innovation (residual)
         fig_err.add_trace(
             go.Scatter(x=data['time'], y=data['innovation_x'], mode='lines',
@@ -403,20 +390,18 @@ if st.session_state.simulation_data is not None:
                       name='Innovation Y', line=dict(color='cyan', width=1)),
             row=2, col=1
         )
-        
+
         fig_err.update_xaxes(title_text="Time (s)", row=2, col=1)
         fig_err.update_yaxes(title_text="Error (m)", row=1, col=1)
         fig_err.update_yaxes(title_text="Innovation (m)", row=2, col=1)
         fig_err.update_layout(height=600, hovermode='x unified', template='plotly_dark')
-        
+
         st.plotly_chart(fig_err, use_container_width=True)
-    
-    # ========================================================================
+
     # TAB 5: DATA TABLES
-    # ========================================================================
     with tab5:
         col_a, col_b = st.columns(2)
-        
+
         with col_a:
             st.subheader("📊 Input Parameters")
             params_df = pd.DataFrame({
@@ -448,7 +433,7 @@ if st.session_state.simulation_data is not None:
                 ]
             })
             st.dataframe(params_df, use_container_width=True, hide_index=True)
-        
+
         with col_b:
             st.subheader("📈 Statistics")
             stats_df = pd.DataFrame({
@@ -472,7 +457,7 @@ if st.session_state.simulation_data is not None:
                 ]
             })
             st.dataframe(stats_df, use_container_width=True, hide_index=True)
-        
+
         st.subheader("🔢 Time Series Data (First 20 Rows)")
         display_df = pd.DataFrame({
             'Time (s)': data['time'][:20],
@@ -487,7 +472,7 @@ if st.session_state.simulation_data is not None:
             'Uncertainty (m)': np.round(data['uncertainty'][:20], 4)
         })
         st.dataframe(display_df, use_container_width=True, hide_index=True)
-        
+
         # Download CSV
         csv = display_df.to_csv(index=False)
         st.download_button(
@@ -499,3 +484,4 @@ if st.session_state.simulation_data is not None:
 
 else:
     st.info("👈 Configure parameters and click **Run Simulation** to start!")
+
