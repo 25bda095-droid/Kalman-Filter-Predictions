@@ -171,35 +171,43 @@ class Kalman2DFilter:
         Returns:
             Dictionary with step results
         """
-        # Step 1: Prediction
-        x_pred, P_pred = self.predict()
-        
-        # Step 2: Update
-        x_updated, P_updated, innovation, K = self.update(
-            measurement, x_pred, P_pred
-        )
-        
-        # Update internal state
-        self.x = x_updated
-        self.P = P_updated
-        
-        # Store history
-        self.history['predicted_state'].append(x_pred)
-        self.history['updated_state'].append(x_updated)
-        self.history['measurement'].append(measurement)
-        self.history['covariance_trace'].append(np.trace(P_updated))
-        self.history['innovation'].append(innovation)
-        self.history['kalman_gain'].append(K.copy())
-        
-        return {
-            'x_predicted': x_pred,
-            'P_predicted': P_pred,
-            'x_updated': x_updated,
-            'P_updated': P_updated,
-            'innovation': innovation,
-            'kalman_gain': K,
-            'innovation_cov': np.linalg.det(P_pred @ self.H.T)
-        }
+        try:
+            # Ensure measurement is correct shape and type
+            measurement = np.array(measurement, dtype=np.float64).flatten()
+            if measurement.shape[0] != 2:
+                measurement = measurement[:2]
+            
+            # Step 1: Prediction
+            x_pred, P_pred = self.predict()
+            
+            # Step 2: Update
+            x_updated, P_updated, innovation, K = self.update(
+                measurement, x_pred, P_pred
+            )
+            
+            # Update internal state
+            self.x = x_updated.copy()
+            self.P = P_updated.copy()
+            
+            # Store history
+            self.history['predicted_state'].append(x_pred.copy())
+            self.history['updated_state'].append(x_updated.copy())
+            self.history['measurement'].append(measurement.copy())
+            self.history['covariance_trace'].append(float(np.trace(P_updated)))
+            self.history['innovation'].append(innovation.copy())
+            self.history['kalman_gain'].append(K.copy())
+            
+            return {
+                'x_predicted': x_pred,
+                'P_predicted': P_pred,
+                'x_updated': x_updated,
+                'P_updated': P_updated,
+                'innovation': innovation,
+                'kalman_gain': K,
+                'innovation_cov': float(np.linalg.det(self.R))
+            }
+        except Exception as e:
+            raise Exception(f"Error in Kalman step: {str(e)}")
     
     def get_uncertainty(self) -> float:
         """Return current position uncertainty (trace of covariance)"""
