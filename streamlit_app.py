@@ -112,24 +112,28 @@ def run_kalman_simulation(kf, init_pos_x, init_pos_y, init_vel_x, init_vel_y,
     true_state = np.array([init_pos_x, init_vel_x, init_pos_y, init_vel_y])
     
     for step in range(duration):
-        t = step * dt
-        
-        # Update true state with acceleration (kinematic equation)
-        true_state[0] += true_state[1] * dt + 0.5 * accel_x * dt**2
-        true_state[1] += accel_x * dt
-        true_state[2] += true_state[3] * dt + 0.5 * accel_y * dt**2
-        true_state[3] += accel_y * dt
-        
-        # Add measurement noise
-        measurement_noise_x = np.random.normal(0, meas_noise)
-        measurement_noise_y = np.random.normal(0, meas_noise)
-        measurement = np.array([
-            true_state[0] + measurement_noise_x,
-            true_state[2] + measurement_noise_y
-        ])
-        
-        # Apply Kalman filter
-        step_result = kf.step(measurement)
+        try:
+            t = step * dt
+            
+            # Update true state with acceleration (kinematic equation)
+            true_state[0] += true_state[1] * dt + 0.5 * accel_x * dt**2
+            true_state[1] += accel_x * dt
+            true_state[2] += true_state[3] * dt + 0.5 * accel_y * dt**2
+            true_state[3] += accel_y * dt
+            
+            # Add measurement noise
+            measurement_noise_x = np.random.normal(0, meas_noise)
+            measurement_noise_y = np.random.normal(0, meas_noise)
+            measurement = np.array([
+                true_state[0] + measurement_noise_x,
+                true_state[2] + measurement_noise_y
+            ], dtype=np.float64)
+            
+            # Apply Kalman filter
+            step_result = kf.step(measurement)
+        except Exception as e:
+            st.error(f"Error in step {step}: {str(e)}")
+            break
         
         # Extract results
         estimated_state = step_result['x_updated']
