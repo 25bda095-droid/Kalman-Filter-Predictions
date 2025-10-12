@@ -84,7 +84,7 @@ if col3.button("📊 Example Data", use_container_width=True):
 # SIMULATION LOGIC
 # ============================================================================
 def run_kalman_simulation(kf, init_pos_x, init_pos_y, init_vel_x, init_vel_y,
-                         duration, dt, accel_x, accel_y, meas_noise, proc_noise_pos, proc_noise_vel):
+                         duration, dt, acceleration_x, acceleration_y, measurement_noise, process_noise_pos, process_noise_vel):
     """
     Run complete Kalman filter simulation.
     
@@ -97,8 +97,8 @@ def run_kalman_simulation(kf, init_pos_x, init_pos_y, init_vel_x, init_vel_y,
     # Configure filter
     kf.reset()
     kf.set_initial_state(init_pos_x, init_pos_y, init_vel_x, init_vel_y)
-    kf.set_process_noise(proc_noise_pos, proc_noise_vel)
-    kf.set_measurement_noise(meas_noise ** 2)
+    kf.set_process_noise(process_noise_pos, process_noise_vel)
+    kf.set_measurement_noise(measurement_noise ** 2)
     
     # Storage
     results = {
@@ -128,14 +128,14 @@ def run_kalman_simulation(kf, init_pos_x, init_pos_y, init_vel_x, init_vel_y,
             t = step * dt
             
             # Update true state with acceleration (kinematic equation)
-            true_state[0] += true_state[1] * dt + 0.5 * accel_x * dt**2
-            true_state[1] += accel_x * dt
-            true_state[2] += true_state[3] * dt + 0.5 * accel_y * dt**2
-            true_state[3] += accel_y * dt
+            true_state[0] += true_state[1] * dt + 0.5 * acceleration_x * dt**2
+            true_state[1] += acceleration_x * dt
+            true_state[2] += true_state[3] * dt + 0.5 * acceleration_y * dt**2
+            true_state[3] += acceleration_y * dt
             
             # Add measurement noise
-            measurement_noise_x = np.random.normal(0, meas_noise)
-            measurement_noise_y = np.random.normal(0, meas_noise)
+            measurement_noise_x = np.random.normal(0, measurement_noise)
+            measurement_noise_y = np.random.normal(0, measurement_noise)
             measurement = np.array([
                 true_state[0] + measurement_noise_x,
                 true_state[2] + measurement_noise_y
