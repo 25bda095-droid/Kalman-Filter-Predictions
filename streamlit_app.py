@@ -73,9 +73,9 @@ if col3.button("📊 Example Data", use_container_width=True):
     # Load example with preset values
     st.session_state.simulation_data = run_kalman_simulation(
         st.session_state.kf,
-        pos_x=0, pos_y=0, vel_x=10, vel_y=3,
-        duration=150, dt=0.1, accel_x=0.5, accel_y=0.2,
-        meas_noise=3.0, proc_noise_pos=0.05, proc_noise_vel=0.01
+        init_pos_x=0, init_pos_y=0, init_vel_x=10, init_vel_y=3,
+        duration=150, dt=0.1, acceleration_x=0.5, acceleration_y=0.2,
+        measurement_noise=3.0, process_noise_pos=0.05, process_noise_vel=0.01
     )
     st.success("✅ Example data loaded! Scroll down to see results.")
     st.rerun()
@@ -176,9 +176,9 @@ if st.session_state.run_simulation:
     with st.spinner("🔄 Running Kalman filter simulation..."):
         sim_data = run_kalman_simulation(
             st.session_state.kf,
-            pos_x=init_pos_x, pos_y=init_pos_y, vel_x=init_vel_x, vel_y=init_vel_y,
-            duration=duration, dt=dt, accel_x=acceleration_x, accel_y=acceleration_y,
-            meas_noise=measurement_noise, proc_noise_pos=process_noise_pos, proc_noise_vel=process_noise_vel
+            init_pos_x=init_pos_x, init_pos_y=init_pos_y, init_vel_x=init_vel_x, init_vel_y=init_vel_y,
+            duration=duration, dt=dt, acceleration_x=acceleration_x, acceleration_y=acceleration_y,
+            measurement_noise=measurement_noise, process_noise_pos=process_noise_pos, process_noise_vel=process_noise_vel
         )
         st.session_state.simulation_data = sim_data
         st.session_state.run_simulation = False
