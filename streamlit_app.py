@@ -194,43 +194,51 @@ if st.session_state.simulation_data is not None:
         st.subheader("Car Trajectory in 2D Space")
         st.markdown("Blue=True, Red=Measured, Green=Estimated")
         
-        fig_traj = go.Figure()
-        
-        # True trajectory
-        fig_traj.add_trace(go.Scatter(
-            x=data['true_pos_x'], y=data['true_pos_y'],
-            mode='lines+markers', name='True State',
-            line=dict(color='blue', width=2),
-            marker=dict(size=4)
-        ))
-        
-        # Measurements
-        fig_traj.add_trace(go.Scatter(
-            x=data['measurement_x'], y=data['measurement_y'],
-            mode='markers', name='Measurements (Noisy)',
-            marker=dict(color='red', size=3, opacity=0.6)
-        ))
-        
-        # Kalman estimate
-        fig_traj.add_trace(go.Scatter(
-            x=data['estimated_pos_x'], y=data['estimated_pos_y'],
-            mode='lines+markers', name='Kalman Estimate',
-            line=dict(color='green', width=2, dash='dash'),
-            marker=dict(size=4)
-        ))
-        
-        # Start and end points
-        fig_traj.add_trace(go.Scatter(
-            x=[data['true_pos_x'][0]], y=[data['true_pos_y'][0]],
-            mode='markers', name='Start',
-            marker=dict(color='green', size=15, symbol='circle')
-        ))
-        
-        fig_traj.add_trace(go.Scatter(
-            x=[data['true_pos_x'][-1]], y=[data['true_pos_y'][-1]],
-            mode='markers', name='End (True)',
-            marker=dict(color='blue', size=15, symbol='square')
-        ))
+        # Check if we have data
+        if len(data['true_pos_x']) > 0:
+            fig_traj = go.Figure()
+            
+            # True trajectory
+            fig_traj.add_trace(go.Scatter(
+                x=data['true_pos_x'], y=data['true_pos_y'],
+                mode='lines+markers', name='True State',
+                line=dict(color='blue', width=2),
+                marker=dict(size=4)
+            ))
+            
+            # Measurements
+            if len(data['measurement_x']) > 0:
+                fig_traj.add_trace(go.Scatter(
+                    x=data['measurement_x'], y=data['measurement_y'],
+                    mode='markers', name='Measurements (Noisy)',
+                    marker=dict(color='red', size=3, opacity=0.6)
+                ))
+            
+            # Kalman estimate
+            if len(data['estimated_pos_x']) > 0:
+                fig_traj.add_trace(go.Scatter(
+                    x=data['estimated_pos_x'], y=data['estimated_pos_y'],
+                    mode='lines+markers', name='Kalman Estimate',
+                    line=dict(color='green', width=2, dash='dash'),
+                    marker=dict(size=4)
+                ))
+            
+            # Start and end points
+            if len(data['true_pos_x']) > 0:
+                fig_traj.add_trace(go.Scatter(
+                    x=[data['true_pos_x'][0]], y=[data['true_pos_y'][0]],
+                    mode='markers', name='Start',
+                    marker=dict(color='green', size=15, symbol='circle')
+                ))
+                
+                fig_traj.add_trace(go.Scatter(
+                    x=[data['true_pos_x'][-1]], y=[data['true_pos_y'][-1]],
+                    mode='markers', name='End (True)',
+                    marker=dict(color='blue', size=15, symbol='square')
+                ))
+        else:
+            st.warning("No trajectory data available")
+            fig_traj = go.Figure()
         
         fig_traj.update_layout(
             title="2D Car Trajectory: Noisy Measurements vs Kalman Filter Estimate",
