@@ -1,5 +1,6 @@
 // src/pages/Terms.jsx
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';   // ✅ fixes the 404 on /contact click
 import SEO from '../components/SEO';
 
 const MIT_LICENSE = `MIT License
@@ -43,7 +44,7 @@ export default function Terms() {
             <span className="badge badge-surface" style={{ marginBottom: '1rem', display: 'inline-flex' }}>Legal</span>
             <h1 style={{ fontFamily: 'var(--font-display)' }}>Terms & Conditions</h1>
             <p style={{ color: 'var(--clr-text-muted)', fontSize: '0.875rem', marginTop: '0.5rem' }}>
-              Last Updated: June 2025
+              Last Updated: June 2026
             </p>
           </div>
 
@@ -115,8 +116,13 @@ export default function Terms() {
 
           <h2>7. Contact Information</h2>
           <p>
-            For questions about these Terms, please visit our <a href="/contact">contact page</a> or
-            email hello@kalmanvis.app.
+            For questions about these Terms, please visit our{' '}
+            {/* ✅ Link instead of <a> — prevents full reload & 404 on Vercel */}
+            <Link to="/contact" style={{ color: 'var(--clr-cyan)' }}>contact page</Link>
+            {' '}or email{' '}
+            <a href="mailto:rishavrmishra@gmail.com" style={{ color: 'var(--clr-cyan)' }}>
+              rishavrmishra@gmail.com
+            </a>.
           </p>
         </motion.div>
       </section>

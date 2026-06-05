@@ -1,5 +1,6 @@
 // src/pages/PrivacyPolicy.jsx
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';   // ✅ fixes 404 on /contact click
 import SEO from '../components/SEO';
 
 export default function PrivacyPolicy() {
@@ -21,7 +22,7 @@ export default function PrivacyPolicy() {
             <span className="badge badge-surface" style={{ marginBottom: '1rem', display: 'inline-flex' }}>Legal</span>
             <h1 style={{ fontFamily: 'var(--font-display)' }}>Privacy Policy</h1>
             <p style={{ color: 'var(--clr-text-muted)', fontSize: '0.875rem', marginTop: '0.5rem' }}>
-              Last Updated: June 2025
+              Last Updated: June 2026
             </p>
           </div>
 
@@ -49,8 +50,9 @@ export default function PrivacyPolicy() {
           <h2>3. Third-Party Services</h2>
           <p>We use the following third-party services for functionality only:</p>
           <ul>
-            <li><strong>Google Fonts</strong> — loads the Space Grotesk, JetBrains Mono, and Syne fonts from Google's CDN. This results in a request to Google's servers on page load.</li>
+            <li><strong>Google Fonts</strong> — loads fonts from Google's CDN, resulting in a request to Google's servers on page load.</li>
             <li><strong>jsDelivr CDN</strong> — loads the KaTeX stylesheet for mathematical notation rendering.</li>
+            <li><strong>Formspree</strong> — processes contact form submissions on the Contact page. Only the data you explicitly type into the form (name, email, message) is sent. See <a href="https://formspree.io/legal/privacy-policy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--clr-cyan)' }}>Formspree's Privacy Policy</a> for details.</li>
           </ul>
           <p>We use no advertising networks, no social media trackers, and no third-party analytics platforms that collect personal data.</p>
 
@@ -71,8 +73,10 @@ export default function PrivacyPolicy() {
           <h2>6. Open Source</h2>
           <p>
             KalmanVis is open source (MIT License). You can verify exactly what code runs in your
-            browser by reviewing the source code on GitHub. There are no hidden data collection
-            mechanisms.
+            browser by reviewing the source code on{' '}
+            <a href="https://github.com/25bda095-droid" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--clr-cyan)' }}>
+              GitHub
+            </a>. There are no hidden data collection mechanisms.
           </p>
 
           <h2>7. Changes to This Policy</h2>
@@ -85,7 +89,12 @@ export default function PrivacyPolicy() {
           <h2>8. Contact</h2>
           <p>
             If you have any questions about this privacy policy, please visit our{' '}
-            <a href="/contact">contact page</a> or email us at hello@kalmanvis.app.
+            {/* ✅ Link instead of <a> — prevents full reload & 404 on Vercel */}
+            <Link to="/contact" style={{ color: 'var(--clr-cyan)' }}>contact page</Link>
+            {' '}or email us at{' '}
+            <a href="mailto:rishavrmishra@gmail.com" style={{ color: 'var(--clr-cyan)' }}>
+              rishavrmishra@gmail.com
+            </a>.
           </p>
         </motion.div>
       </section>
