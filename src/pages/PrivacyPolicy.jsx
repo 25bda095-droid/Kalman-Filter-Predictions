@@ -74,7 +74,7 @@ export default function PrivacyPolicy() {
           <p>
             KalmanVis is open source (MIT License). You can verify exactly what code runs in your
             browser by reviewing the source code on{' '}
-            <a href="https://github.com/25bda095-droid" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--clr-cyan)' }}>
+            <a href="https://github.com/25bda095-droid/Kalman-Filter-Predictions" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--clr-cyan)' }}>
               GitHub
             </a>. There are no hidden data collection mechanisms.
           </p>
