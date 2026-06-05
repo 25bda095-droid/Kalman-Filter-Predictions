@@ -25,8 +25,6 @@
 
 <br/>
 
-![KalmanVis Screenshot](https://kalman-filter-predictions.vercel.app/og-image.png)
-
 </div>
 
 ---
@@ -57,15 +55,6 @@ Whether you're a student discovering state estimation for the first time, or an 
 ## 🚀 Live Demo
 
 **👉 [kalman-filter-predictions.vercel.app](https://kalman-filter-predictions.vercel.app)**
-
-| Page | URL |
-|---|---|
-| Home | [/](https://kalman-filter-predictions.vercel.app/) |
-| Simulator | [/simulator](https://kalman-filter-predictions.vercel.app/simulator) |
-| Learn | [/learn](https://kalman-filter-predictions.vercel.app/learn) |
-| FAQ | [/faq](https://kalman-filter-predictions.vercel.app/faq) |
-| About | [/about](https://kalman-filter-predictions.vercel.app/about) |
-| Contact | [/contact](https://kalman-filter-predictions.vercel.app/contact) |
 
 ---
 
