@@ -1,13 +1,37 @@
 // src/pages/Contact.jsx
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, ExternalLink, MessageSquare, CheckCircle, Loader } from 'lucide-react';
+import { Mail, ExternalLink, MessageSquare, CheckCircle, Loader, AlertCircle } from 'lucide-react';
 import SEO from '../components/SEO';
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 🔧 STEP 1: Sign up free at https://formspree.io
+//            Create a new form → copy the endpoint → paste below
+// ─────────────────────────────────────────────────────────────────────────────
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mdavkyek'; // for collecting user messages who contact us by filling in website
+
 const INFO_CARDS = [
-  { icon: <Mail size={22} />, label: 'Email', value: 'hello@kalmanvis.app', href: 'mailto:rishavrmishra@gmail.com', color: '#00C8FF' },
-  { icon: <ExternalLink size={22} />, label: 'GitHub', value: 'github.com/kalmanvis', href: 'https://github.com/25bda095-droid', color: '#9B5DE5' },
-  { icon: <MessageSquare size={22} />, label: 'LinkedIn', value: '@kalmanvis', href: 'www.linkedin.com/in/rishav-r-mishra', color: '#52B788' },
+  {
+    icon: <Mail size={22} />,
+    label: 'Email',
+    value: 'rishavrmishra@gmail.com',
+    href: 'mailto:rishavrmishra@gmail.com',
+    color: '#00C8FF',
+  },
+  {
+    icon: <ExternalLink size={22} />,
+    label: 'GitHub',
+    value: 'github.com/25bda095-droid',
+    href: 'https://github.com/25bda095-droid',
+    color: '#9B5DE5',
+  },
+  {
+    icon: <MessageSquare size={22} />,
+    label: 'LinkedIn',
+    value: 'linkedin.com/in/rishav-r-mishra',
+    href: 'https://www.linkedin.com/in/rishav-r-mishra', // ✅ fixed: added https://
+    color: '#52B788',
+  },
 ];
 
 const SUBJECTS = [
@@ -21,7 +45,7 @@ const SUBJECTS = [
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [errors, setErrors] = useState({});
-  const [status, setStatus] = useState('idle'); // idle | loading | success
+  const [status, setStatus] = useState('idle'); // idle | loading | success | error
 
   const validate = () => {
     const e = {};
@@ -32,18 +56,47 @@ export default function Contact() {
     return e;
   };
 
-  const handleSubmit = (ev) => {
+  const handleSubmit = async (ev) => {
     ev.preventDefault();
     const e = validate();
     if (Object.keys(e).length > 0) { setErrors(e); return; }
     setErrors({});
     setStatus('loading');
-    setTimeout(() => setStatus('success'), 1500);
+
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          subject: form.subject || 'No subject selected',
+          message: form.message,
+        }),
+      });
+
+      if (res.ok) {
+        setStatus('success');
+      } else {
+        // Formspree returns JSON with error details
+        const data = await res.json();
+        console.error('Formspree error:', data);
+        setStatus('error');
+      }
+    } catch (err) {
+      console.error('Network error:', err);
+      setStatus('error');
+    }
   };
 
   const handleChange = (key, val) => {
     setForm(f => ({ ...f, [key]: val }));
     if (errors[key]) setErrors(e => { const n = { ...e }; delete n[key]; return n; });
+  };
+
+  const resetForm = () => {
+    setStatus('idle');
+    setForm({ name: '', email: '', subject: '', message: '' });
   };
 
   return (
@@ -82,7 +135,7 @@ export default function Contact() {
                 <a
                   key={card.label}
                   href={card.href}
-                  target={card.href.startsWith('http') ? '_blank' : undefined}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="card"
                   style={{
@@ -119,7 +172,9 @@ export default function Contact() {
             transition={{ duration: 0.5, delay: 0.1 }}
           >
             <AnimatePresence mode="wait">
-              {status === 'success' ? (
+
+              {/* ✅ Success state */}
+              {status === 'success' && (
                 <motion.div
                   key="success"
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -136,17 +191,39 @@ export default function Contact() {
                   </motion.div>
                   <h3 style={{ color: '#52B788', marginBottom: '0.75rem' }}>Message Sent!</h3>
                   <p style={{ color: 'var(--clr-text-muted)', lineHeight: 1.7 }}>
-                    Thanks! We'll get back to you within 24–48 hours.
+                    Thanks for reaching out! We'll get back to you within 24–48 hours.
                   </p>
-                  <button
-                    onClick={() => { setStatus('idle'); setForm({ name: '', email: '', subject: '', message: '' }); }}
-                    className="btn btn-ghost"
-                    style={{ marginTop: '1.5rem' }}
-                  >
+                  <button onClick={resetForm} className="btn btn-ghost" style={{ marginTop: '1.5rem' }}>
                     Send another message
                   </button>
                 </motion.div>
-              ) : (
+              )}
+
+              {/* ❌ Error state */}
+              {status === 'error' && (
+                <motion.div
+                  key="error"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="card"
+                  style={{ textAlign: 'center', padding: '3rem', borderColor: 'rgba(255,80,80,0.3)' }}
+                >
+                  <AlertCircle size={64} color="#FF5050" style={{ margin: '0 auto 1.5rem' }} />
+                  <h3 style={{ color: '#FF5050', marginBottom: '0.75rem' }}>Something went wrong</h3>
+                  <p style={{ color: 'var(--clr-text-muted)', lineHeight: 1.7 }}>
+                    The message couldn't be sent. Please email us directly at{' '}
+                    <a href="mailto:rishavrmishra@gmail.com" style={{ color: 'var(--clr-cyan)' }}>
+                      rishavrmishra@gmail.com
+                    </a>
+                  </p>
+                  <button onClick={resetForm} className="btn btn-ghost" style={{ marginTop: '1.5rem' }}>
+                    Try again
+                  </button>
+                </motion.div>
+              )}
+
+              {/* 📝 Form (idle or loading) */}
+              {(status === 'idle' || status === 'loading') && (
                 <motion.form
                   key="form"
                   onSubmit={handleSubmit}
@@ -224,6 +301,7 @@ export default function Contact() {
                   </button>
                 </motion.form>
               )}
+
             </AnimatePresence>
           </motion.div>
         </div>
