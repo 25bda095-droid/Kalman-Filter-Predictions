@@ -5,9 +5,9 @@ import { Mail, ExternalLink, MessageSquare, CheckCircle, Loader } from 'lucide-r
 import SEO from '../components/SEO';
 
 const INFO_CARDS = [
-  { icon: <Mail size={22} />, label: 'Email', value: 'hello@kalmanvis.app', href: 'mailto:hello@kalmanvis.app', color: '#00C8FF' },
-  { icon: <ExternalLink size={22} />, label: 'GitHub', value: 'github.com/kalmanvis', href: 'https://github.com/kalmanvis', color: '#9B5DE5' },
-  { icon: <MessageSquare size={22} />, label: 'Twitter', value: '@kalmanvis', href: 'https://twitter.com/kalmanvis', color: '#52B788' },
+  { icon: <Mail size={22} />, label: 'Email', value: 'hello@kalmanvis.app', href: 'mailto:rishavrmishra@gmail.com', color: '#00C8FF' },
+  { icon: <ExternalLink size={22} />, label: 'GitHub', value: 'github.com/kalmanvis', href: 'https://github.com/25bda095-droid', color: '#9B5DE5' },
+  { icon: <MessageSquare size={22} />, label: 'LinkedIn', value: '@kalmanvis', href: 'www.linkedin.com/in/rishav-r-mishra', color: '#52B788' },
 ];
 
 const SUBJECTS = [

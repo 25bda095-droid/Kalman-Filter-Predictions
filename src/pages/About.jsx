@@ -194,7 +194,7 @@ export default function About() {
             MIT Licensed. The full source code is available on GitHub. Contributions, issues, and forks are welcome.
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a href="https://github.com/kalmanvis" target="_blank" rel="noopener noreferrer"
+            <a href="https://github.com/25bda095-droid/Kalman-Filter-Predictions" target="_blank" rel="noopener noreferrer"
               className="btn btn-secondary">
               <ExternalLink size={16} /> View on GitHub
             </a>
