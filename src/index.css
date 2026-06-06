@@ -846,3 +846,198 @@ nav.scrolled {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* ============================================================
+   KALMANVIS — RESPONSIVE PATCH
+   Added at the bottom of index.css.
+   Do NOT change anything above it.
+   ============================================================ */
+
+/* ── Global overflow guard ───────────────────────────────────── */
+body {
+  overflow-x: hidden;
+}
+
+/* ── Tablet (≤ 768px) ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* Grid: always single column on tablet and below */
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+
+  /* Hero / section padding */
+  section {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Section titles */
+  .section-title {
+    font-size: clamp(1.6rem, 5vw, 2.4rem) !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Cards */
+  .card {
+    padding: 1.25rem !important;
+    border-radius: 12px !important;
+  }
+
+  /* Prose pages (Privacy, Terms) */
+  .prose {
+    padding: 0 0.25rem !important;
+  }
+
+  .prose h1 {
+    font-size: clamp(1.5rem, 5vw, 2rem) !important;
+  }
+
+  .prose h2 {
+    font-size: clamp(1.1rem, 4vw, 1.4rem) !important;
+  }
+
+  .prose pre {
+    font-size: 0.75rem !important;
+    overflow-x: auto !important;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 0.65rem 1.25rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  .btn-full {
+    width: 100% !important;
+  }
+
+  /* Navbar — give more breathing room */
+  nav {
+    padding: 0 1rem !important;
+  }
+
+  /* Form inputs — prevent iOS auto-zoom (must be ≥ 16px) */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    font-size: 1rem !important;
+  }
+
+  /* Simulator layout — stack sidebar below canvas */
+  .simulator-layout,
+  .sim-layout {
+    flex-direction: column !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Walkthrough / results nav bar */
+  .walkthrough-nav,
+  .results-nav {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.8rem !important;
+    gap: 0.5rem !important;
+  }
+}
+
+/* ── Mobile (≤ 480px) ─────────────────────────────────────────── */
+@media (max-width: 480px) {
+
+  /* Ensure no horizontal scroll */
+  body {
+    overflow-x: hidden !important;
+  }
+
+  /* Hero sections */
+  section {
+    padding-top: 3rem !important;
+    padding-bottom: 2rem !important;
+    padding-left: 0.875rem !important;
+    padding-right: 0.875rem !important;
+  }
+
+  /* Section titles */
+  .section-title {
+    font-size: clamp(1.4rem, 6vw, 1.8rem) !important;
+  }
+
+  /* Info cards on Contact page — stack icon + text cleanly */
+  .card [style*="display: flex"][style*="align-items: center"] {
+    gap: 0.75rem !important;
+  }
+
+  /* Max width containers */
+  div[style*="max-width: 960px"],
+  div[style*="max-width: 800px"],
+  div[style*="max-width: 720px"] {
+    padding-left: 0.875rem !important;
+    padding-right: 0.875rem !important;
+  }
+
+  /* Badges */
+  .badge {
+    font-size: 0.7rem !important;
+    padding: 0.3rem 0.75rem !important;
+  }
+
+  /* Simulator sidebar — full width on mobile */
+  .sidebar,
+  aside {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Plotly charts — prevent horizontal overflow */
+  .js-plotly-plot,
+  .plotly-graph-div {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  /* Prose pages */
+  .prose {
+    font-size: 0.9375rem !important;
+    line-height: 1.75 !important;
+  }
+
+  .prose ul,
+  .prose ol {
+    padding-left: 1.25rem !important;
+  }
+
+  .prose pre {
+    font-size: 0.7rem !important;
+    padding: 0.75rem !important;
+  }
+
+  /* Tables — scroll horizontally instead of breaking layout */
+  table {
+    display: block !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+  }
+
+  /* Contact page success/error cards */
+  .card[style*="padding: 3rem"] {
+    padding: 2rem 1.25rem !important;
+  }
+}
+
+/* ── iOS Safari specific fixes ────────────────────────────────── */
+@supports (-webkit-touch-callout: none) {
+
+  /* Prevent font size bump when rotating orientation */
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Fix input zoom — must be font-size ≥ 16px */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    font-size: 16px !important;
+  }
+}
+/* ============================================================ */
