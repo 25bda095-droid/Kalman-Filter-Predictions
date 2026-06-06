@@ -1041,3 +1041,70 @@ body {
   }
 }
 /* ============================================================ */
+
+/* ============================================================
+   KALMANVIS — SIMULATOR MOBILE COMFORT PATCH
+   Appended below the responsive patch. No existing rules changed.
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+  /* 1 & 2. Sidebar: generous height + scrollable */
+  .simulator-sidebar {
+    min-height: 60vh !important;
+    max-height: 75vh !important;
+    overflow-y: auto !important;
+    /* 3. Smooth momentum scrolling on iOS */
+    -webkit-overflow-scrolling: touch !important;
+    /* Remove the fixed desktop width so it fills the full column */
+    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--clr-border) !important;
+  }
+
+  /* 6. More breathing room between sidebar control groups */
+  .simulator-sidebar > * + * {
+    margin-top: 1.25rem !important;
+  }
+
+  /* Spacing inside any flex/grid children of the sidebar */
+  .simulator-sidebar .flex-col,
+  .simulator-sidebar [class*="col"] {
+    gap: 1rem !important;
+  }
+
+  /* Individual slider wrappers need extra vertical space */
+  .slider-wrapper {
+    margin-bottom: 0.75rem !important;
+  }
+
+  /* 4. Sliders full-width so they are easy to drag on touch */
+  .simulator-sidebar input[type="range"],
+  input[type="range"] {
+    width: 100% !important;
+    /* 5. Taller track = easier to hit */
+    height: 6px !important;
+    touch-action: pan-x !important;
+  }
+
+  /* 5. Larger thumb for touch — WebKit */
+  .simulator-sidebar input[type="range"]::-webkit-slider-thumb,
+  input[type="range"]::-webkit-slider-thumb {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  /* 5. Larger thumb for touch — Firefox */
+  .simulator-sidebar input[type="range"]::-moz-range-thumb,
+  input[type="range"]::-moz-range-thumb {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  /* 7. Canvas section stays visible after the tall sidebar */
+  .simulator-canvas {
+    min-height: 350px !important;
+    overflow-y: auto !important;
+  }
+}
+/* ============================================================ */
